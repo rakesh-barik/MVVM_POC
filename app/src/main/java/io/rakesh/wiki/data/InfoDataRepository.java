@@ -19,12 +19,10 @@ public class InfoDataRepository {
     private InfoApi infoApi;
     private InfoDAO infoDAO;
     private LiveData<CountryInfo> infoLiveData;
-    private Application application;
 
 
     private InfoDataRepository() {
         initAPI();
-
     }
 
     public void setApplication(Application application) {
