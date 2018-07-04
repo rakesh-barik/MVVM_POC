@@ -66,7 +66,6 @@ public class InfoDataRepository {
             public void onResponse(Call<CountryInfo> call, Response<CountryInfo> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     CountryInfo countryInfo = response.body();
-                    EventBus.getDefault().post(new MessageEvent("FETCHED DATA FROM CLOUD"));
                     insert(countryInfo);
                 }
             }
@@ -95,7 +94,6 @@ public class InfoDataRepository {
         protected Void doInBackground(final CountryInfo... params) {
             mAsyncTaskDao.deleteAll();
             mAsyncTaskDao.insert(params[0]);
-            EventBus.getDefault().post(new MessageEvent("DATA INSERTED TO DB"));
             return null;
         }
     }

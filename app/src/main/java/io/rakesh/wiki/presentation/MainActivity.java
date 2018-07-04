@@ -6,7 +6,10 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
+import android.support.test.espresso.IdlingResource;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -21,7 +24,9 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import io.rakesh.wiki.R;
 import io.rakesh.wiki.data.MessageEvent;
+import io.rakesh.wiki.idlingResouce.SimpleIdlingResource;
 import io.rakesh.wiki.model.CountryInfo;
+
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
 
@@ -30,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     ProgressBar progressBar;
     CountryInfoAdapter countryInfoAdapter;
     SwipeRefreshLayout refreshLayout;
+    IdlingResource mIdlingResource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +49,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         infoRecyclerView = findViewById(R.id.info_recycler);
         infoRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        //countryInfoAdapter = new CountryInfoAdapter(countryInfo.getRows());
-        //infoRecyclerView.setAdapter(countryInfoAdapter);
 
         if(isConnectedToNetwork()){
             refreshLayout.setEnabled(true);
@@ -52,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }else {
             progressBar.setVisibility(View.INVISIBLE);
             refreshLayout.setEnabled(false);
-            Toast.makeText(this,"Please check your network connection", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.network_error, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -104,5 +108,14 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnected();
+    }
+
+    @VisibleForTesting
+    @NonNull
+    public IdlingResource getIdlingResource() {
+        if (mIdlingResource == null) {
+            mIdlingResource = new SimpleIdlingResource();
+        }
+        return mIdlingResource;
     }
 }
