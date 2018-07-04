@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import io.rakesh.wiki.BuildConfig;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -46,11 +47,11 @@ public final class InfoApiClient {
 
             httpClientBuilder.connectTimeout(CONNECTION_TIMEOUT, TimeUnit.SECONDS);
             httpClientBuilder.readTimeout(READ_TIMEOUT, TimeUnit.SECONDS);
-            //if (BuildConfig.DEBUG) {
+            if (BuildConfig.DEBUG) {
                 HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
                 interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
                 httpClientBuilder.addNetworkInterceptor(interceptor);
-            //}
+            }
             httpClientBuilder.retryOnConnectionFailure(true);
             httpClientBuilder.addInterceptor(new Interceptor() {
                 @Override
