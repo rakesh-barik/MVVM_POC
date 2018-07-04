@@ -21,7 +21,9 @@ public class CountryInfoAdapter extends RecyclerView.Adapter<CountryInfoAdapter.
     private List<Row> rows = new ArrayList<>();
 
 
-    public CountryInfoAdapter() {}
+    public CountryInfoAdapter(List<Row> rows) {
+        setrows(rows);
+    }
 
     @NonNull
     @Override
@@ -48,6 +50,7 @@ public class CountryInfoAdapter extends RecyclerView.Adapter<CountryInfoAdapter.
 
     public void clearAll(){
         this.rows.clear();
+        notifyDataSetChanged();
     }
 
     public void setrows(List<Row> rows) {

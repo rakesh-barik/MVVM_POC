@@ -16,8 +16,12 @@ public class CountryInfoViewModel extends AndroidViewModel {
         super(application);
         InfoDataRepository infoDataRepository = InfoDataRepository.getInstance();
         infoDataRepository.setApplication(application);
-        infoDataRepository.getCountryInfoFromCloud();
+        fetchCountryInfoFromCloud();
         countryInfoLiveData = infoDataRepository.getCountryInfoFromDb();
+    }
+
+    public void fetchCountryInfoFromCloud() {
+        InfoDataRepository.getInstance().getCountryInfoFromCloud();
     }
 
     @NonNull

@@ -4,6 +4,8 @@ import android.app.Application;
 import android.arch.lifecycle.LiveData;
 import android.os.AsyncTask;
 
+import org.greenrobot.eventbus.EventBus;
+
 import io.rakesh.wiki.data.cache.InfoDAO;
 import io.rakesh.wiki.data.cache.InfoDb;
 import io.rakesh.wiki.data.remote.InfoApi;
@@ -64,13 +66,15 @@ public class InfoDataRepository {
             public void onResponse(Call<CountryInfo> call, Response<CountryInfo> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     CountryInfo countryInfo = response.body();
+                    EventBus.getDefault().post(new MessageEvent("FETCHED DATA FROM CLOUD"));
                     insert(countryInfo);
                 }
             }
 
             @Override
             public void onFailure(Call<CountryInfo> call, Throwable t) {
-                System.out.println(t.getMessage());
+                //We can still granularize this error messages.
+                EventBus.getDefault().post(new MessageEvent("NETWORK ERROR"));
             }
         });
     }
@@ -91,6 +95,7 @@ public class InfoDataRepository {
         protected Void doInBackground(final CountryInfo... params) {
             mAsyncTaskDao.deleteAll();
             mAsyncTaskDao.insert(params[0]);
+            EventBus.getDefault().post(new MessageEvent("DATA INSERTED TO DB"));
             return null;
         }
     }
