@@ -1,7 +1,5 @@
 package io.rakesh.wiki.data;
 
-import android.util.Log;
-
 import io.rakesh.wiki.data.remote.InfoApi;
 import io.rakesh.wiki.data.remote.InfoApiClient;
 import io.rakesh.wiki.model.CountryInfo;
@@ -14,7 +12,7 @@ public class InfoDataRepository {
     private static InfoDataRepository instance = null;
     private InfoApi infoApi;
 
-    public InfoDataRepository() {
+    private InfoDataRepository() {
         initAPI();
     }
 
@@ -34,14 +32,14 @@ public class InfoDataRepository {
         infoApi = retrofit.create(InfoApi.class);
     }
 
-    private void getCountryInfoFromCloud() {
+    public void getCountryInfoFromCloud() {
         Call<CountryInfo> call = infoApi.getCountryInfo();
         call.enqueue(new Callback<CountryInfo>() {
             @Override
             public void onResponse(Call<CountryInfo> call, Response<CountryInfo> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     CountryInfo countryInfo = response.body();
-                    Log.d("COUNTRY INFO FROM API-->",countryInfo.getTitle());
+                    //Log.d("COUNTRY INFO FROM API-->",countryInfo.getTitle());
 
                 }
             }
