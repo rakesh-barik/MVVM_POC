@@ -102,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(MessageEvent event) {
         Toast.makeText(this,event.getMessage(),Toast.LENGTH_LONG).show();
+        progressBar.setVisibility(View.INVISIBLE);
     }
 
     private boolean isConnectedToNetwork() {
