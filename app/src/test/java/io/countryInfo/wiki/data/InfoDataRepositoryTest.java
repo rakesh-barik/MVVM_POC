@@ -22,11 +22,10 @@ import static org.junit.Assert.assertEquals;
 @RunWith(JUnit4.class)
 public class InfoDataRepositoryTest {
 
-    InfoDataRepository infoDataRepository;
-    MockWebServer mockWebServer;
-    InfoApi infoApi;
+    private MockWebServer mockWebServer;
+    private InfoApi infoApi;
 
-    String sampleJson = "{\n" +
+    private String sampleJson = "{\n" +
             "\"title\":\"About Canada\",\n" +
             "\"rows\":[\n" +
             "\t{\n" +
@@ -50,7 +49,7 @@ public class InfoDataRepositoryTest {
 
         infoApi = retrofit.create(InfoApi.class);
 
-        infoDataRepository = InfoDataRepository.getInstance();
+        InfoDataRepository.getInstance();
 
     }
 
