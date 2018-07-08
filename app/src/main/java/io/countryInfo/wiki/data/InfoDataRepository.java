@@ -1,13 +1,9 @@
 package io.countryInfo.wiki.data;
 
-import android.app.Application;
-import android.arch.lifecycle.LiveData;
-import android.os.AsyncTask;
+import android.arch.lifecycle.MutableLiveData;
 
 import org.greenrobot.eventbus.EventBus;
 
-import io.countryInfo.wiki.data.cache.InfoDAO;
-import io.countryInfo.wiki.data.cache.InfoDb;
 import io.countryInfo.wiki.data.remote.InfoApi;
 import io.countryInfo.wiki.data.remote.InfoApiClient;
 import io.countryInfo.wiki.model.CountryInfo;
@@ -19,16 +15,12 @@ import retrofit2.Retrofit;
 public class InfoDataRepository {
     private static InfoDataRepository instance = null;
     private InfoApi infoApi;
-    private InfoDAO infoDAO;
-    private LiveData<CountryInfo> infoLiveData;
+    private MutableLiveData<CountryInfo> infoLiveData;
 
 
     private InfoDataRepository() {
+        infoLiveData = new MutableLiveData<>();
         initAPI();
-    }
-
-    public void setApplication(Application application) {
-        initDatabase(application);
     }
 
     public static InfoDataRepository getInstance() {
@@ -49,13 +41,7 @@ public class InfoDataRepository {
         infoApi = retrofit.create(InfoApi.class);
     }
 
-    private void initDatabase(Application application) {
-        InfoDb db = InfoDb.getDatabase(application);
-        infoDAO = db.infoDAO();
-        infoLiveData = infoDAO.getCountryInfo();
-    }
-
-    public LiveData<CountryInfo> getCountryInfoFromDb() {
+    public MutableLiveData<CountryInfo> getCountryInfo() {
         return infoLiveData;
     }
 
@@ -66,7 +52,7 @@ public class InfoDataRepository {
             public void onResponse(Call<CountryInfo> call, Response<CountryInfo> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     CountryInfo countryInfo = response.body();
-                    insert(countryInfo);
+                    infoLiveData.setValue(countryInfo);
                 }
             }
 
@@ -77,25 +63,4 @@ public class InfoDataRepository {
             }
         });
     }
-
-    public void insert(CountryInfo info) {
-        new insertAsyncTask(infoDAO).execute(info);
-    }
-
-    private static class insertAsyncTask extends AsyncTask<CountryInfo, Void, Void> {
-
-        private InfoDAO mAsyncTaskDao;
-
-        insertAsyncTask(InfoDAO dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final CountryInfo... params) {
-            mAsyncTaskDao.deleteAll();
-            mAsyncTaskDao.insert(params[0]);
-            return null;
-        }
-    }
-
 }
