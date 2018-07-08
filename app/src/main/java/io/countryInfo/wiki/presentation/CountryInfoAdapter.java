@@ -24,10 +24,6 @@ public class CountryInfoAdapter extends RecyclerView.Adapter<CountryInfoAdapter.
 
     }
 
-    public CountryInfoAdapter(List<Row> rows) {
-        setRows(rows);
-    }
-
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -41,6 +37,12 @@ public class CountryInfoAdapter extends RecyclerView.Adapter<CountryInfoAdapter.
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         final Row fact = rows.get(position);
+        if(fact.getTitle() == null && fact.getDescription() == null){
+            holder.caretView.setVisibility(View.GONE);
+            holder.titleTextView.setVisibility(View.GONE);
+            holder.descTextView.setVisibility(View.GONE);
+            holder.separatorView.setVisibility(View.GONE);
+        }
         holder.titleTextView.setText(fact.getTitle());
         holder.descTextView.setText(fact.getDescription());
         Glide.with(holder.articleImageView.getContext()).load(fact.getImageHref()).into(holder.articleImageView);
@@ -59,12 +61,16 @@ public class CountryInfoAdapter extends RecyclerView.Adapter<CountryInfoAdapter.
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView titleTextView, descTextView;
         ImageView articleImageView;
+        TextView caretView;
+        View separatorView;
 
         public ViewHolder(View itemView) {
             super(itemView);
             titleTextView = itemView.findViewById(R.id.text_title);
             descTextView = itemView.findViewById(R.id.text_desc);
+            caretView = itemView.findViewById(R.id.caret);
             articleImageView = itemView.findViewById(R.id.image_article);
+            separatorView = itemView.findViewById(R.id.separator);
         }
 
 
