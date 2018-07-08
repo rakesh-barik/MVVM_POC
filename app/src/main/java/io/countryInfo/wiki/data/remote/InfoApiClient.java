@@ -1,28 +1,21 @@
 package io.countryInfo.wiki.data.remote;
 
 import android.support.annotation.NonNull;
+import android.support.test.espresso.IdlingRegistry;
 
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
+import com.jakewharton.espresso.OkHttp3IdlingResource;
 
 import io.countryInfo.wiki.BuildConfig;
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public final class InfoApiClient {
     private static final String BASE_URL = "https://dl.dropboxusercontent.com/s/2iodh4vg0eortkl/";
-    private static final int CONNECTION_TIMEOUT = 30;
-    private static final int READ_TIMEOUT = 30;
     private static Retrofit retrofit = null;
+    private static OkHttpClient okHttpClient = null;
 
-    private static OkHttpClient.Builder httpClientBuilder = null;
-
-    public static Retrofit getRetrofitClient(){
+    public static Retrofit getRetrofitClient() {
         return getRetrofitBuild();
     }
 
@@ -30,42 +23,26 @@ public final class InfoApiClient {
     @NonNull
     private static Retrofit getRetrofitBuild() {
 
-        if(retrofit == null){
-            retrofit =  new Retrofit.Builder()
+        if (retrofit == null) {
+            retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
                     .addConverterFactory(GsonConverterFactory.create())
-                    .client(getOkHttpClient().build())
+                    .client(getOkHttpClient())
                     .build();
+
         }
 
         return retrofit;
     }
 
-    private static OkHttpClient.Builder getOkHttpClient() {
-        if(httpClientBuilder == null) {
-            httpClientBuilder = new OkHttpClient.Builder();
-
-            httpClientBuilder.connectTimeout(CONNECTION_TIMEOUT, TimeUnit.SECONDS);
-            httpClientBuilder.readTimeout(READ_TIMEOUT, TimeUnit.SECONDS);
-            if (BuildConfig.DEBUG) {
-                HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-                interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-                httpClientBuilder.addNetworkInterceptor(interceptor);
-            }
-            httpClientBuilder.retryOnConnectionFailure(true);
-            httpClientBuilder.addInterceptor(new Interceptor() {
-                @Override
-                public Response intercept(Chain chain) throws IOException {
-                    Request original = chain.request();
-
-                    Request request = original.newBuilder()
-                            .method(original.method(), original.body())
-                            .build();
-                    return chain.proceed(request);
-                }
-            });
+    private static OkHttpClient getOkHttpClient() {
+        if (okHttpClient == null) {
+            okHttpClient = new OkHttpClient();
         }
-        return httpClientBuilder;
+        if (BuildConfig.DEBUG) {
+            IdlingRegistry.getInstance().register(OkHttp3IdlingResource.create("okhttp", okHttpClient));
+        }
+        return okHttpClient;
     }
 
 }

@@ -2,13 +2,10 @@ package io.countryInfo.wiki.presentation;
 
 import android.content.Context;
 import android.net.wifi.WifiManager;
-import android.support.test.espresso.IdlingRegistry;
-import android.support.test.espresso.IdlingResource;
 import android.support.test.espresso.contrib.RecyclerViewActions;
+import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,26 +25,20 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 @RunWith(JUnit4.class)
+@LargeTest
 public class MainActivityInstrumentationTest {
     @Rule
     public ActivityTestRule<MainActivity> mActivityRule =
             new ActivityTestRule<>(MainActivity.class);
 
-    private IdlingResource mIdlingResource;
-
-    @Before
-    public void registerIdlingResource() {
-        mIdlingResource = mActivityRule.getActivity().getIdlingResource();
-        IdlingRegistry.getInstance().register(mIdlingResource);
-    }
-
     @Test
     public void scrollToItemBelowFold_checkItsText() {
         WifiManager wifi = (WifiManager) mActivityRule.getActivity().getSystemService(Context.WIFI_SERVICE);
         if(wifi != null) wifi.setWifiEnabled(true);
+
         // First scroll to the position that needs to be matched and click on it.
         onView(withId(R.id.info_recycler))
-                .perform(RecyclerViewActions.actionOnItemAtPosition(9, click()));
+                .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
 
         // Match the text in an item below the fold and check that it's displayed.
         String itemElementText = mActivityRule.getActivity().getResources().getString(
@@ -56,7 +47,7 @@ public class MainActivityInstrumentationTest {
     }
 
     @Test
-    public void checkNetworkConnectionToast() {
+    public void checkNetworkErrorToast() {
         WifiManager wifi = (WifiManager) mActivityRule.getActivity().getSystemService(Context.WIFI_SERVICE);
         if(wifi != null) wifi.setWifiEnabled(false);
         onView(withId(R.id.pull_to_refresh)).perform(swipeDown());
@@ -65,13 +56,6 @@ public class MainActivityInstrumentationTest {
                         getActivity().getWindow().getDecorView()))))
                 .check(matches(isDisplayed()));
         if(wifi != null) wifi.setWifiEnabled(true);
-    }
-
-    @After
-    public void unregisterIdlingResource() {
-        if (mIdlingResource != null) {
-            IdlingRegistry.getInstance().unregister(mIdlingResource);
-        }
     }
 
 }
