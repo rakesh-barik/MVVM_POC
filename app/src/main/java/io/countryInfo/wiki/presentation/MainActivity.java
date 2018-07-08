@@ -28,7 +28,7 @@ import io.countryInfo.wiki.idlingResouce.SimpleIdlingResource;
 import io.countryInfo.wiki.model.CountryInfo;
 
 
-public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
+public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     CountryInfoViewModel viewModel;
     RecyclerView infoRecyclerView;
@@ -49,15 +49,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         infoRecyclerView = findViewById(R.id.info_recycler);
         infoRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        if(isConnectedToNetwork()){
-            refreshLayout.setEnabled(true);
-            loadCountryInfo();
-        }else {
-            progressBar.setVisibility(View.INVISIBLE);
-            refreshLayout.setEnabled(false);
-            Toast.makeText(this, R.string.network_error, Toast.LENGTH_SHORT).show();
-        }
+        countryInfoAdapter = new CountryInfoAdapter();
+        infoRecyclerView.setAdapter(countryInfoAdapter);
+        loadCountryInfo();
     }
 
     private void loadCountryInfo() {
@@ -65,13 +59,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         viewModel.getCountryInfoLiveData().observe(this, new Observer<CountryInfo>() {
             @Override
             public void onChanged(@Nullable CountryInfo countryInfo) {
-                if(countryInfo != null){
-                    System.out.println("LIVE DATA-> "+ countryInfo.getTitle());
+                if (countryInfo != null) {
                     getSupportActionBar().setTitle(countryInfo.getTitle());
-                    //countryInfoAdapter.setrows(countryInfo.getRows());
-                    infoRecyclerView.setAdapter(new CountryInfoAdapter(countryInfo.getRows()));
-                    progressBar.setVisibility(View.INVISIBLE);
-                    refreshLayout.setRefreshing(false);
+                    countryInfoAdapter.setRows(countryInfo.getRows());
+                    setLoadingIndicator(false);
                 }
             }
         });
@@ -79,13 +70,21 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void onRefresh() {
-        viewModel.onCleared();
-        viewModel.fetchCountryInfoFromCloud();
-        progressBar.setVisibility(View.VISIBLE);
-        loadCountryInfo();
+        if (!isConnectedToNetwork()) {
+            setLoadingIndicator(false);
+            Toast.makeText(this, R.string.network_error, Toast.LENGTH_SHORT).show();
+        }
+        if (viewModel != null) {
+            viewModel.onCleared();
+            viewModel.getCountryInfoFromCloud();
+        }
+
     }
 
-
+    private void setLoadingIndicator(boolean active) {
+        progressBar.setVisibility(active ? View.VISIBLE : View.INVISIBLE);
+        refreshLayout.setRefreshing(active);
+    }
 
     @Override
     public void onStart() {
@@ -101,8 +100,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(MessageEvent event) {
-        Toast.makeText(this,event.getMessage(),Toast.LENGTH_LONG).show();
-        progressBar.setVisibility(View.INVISIBLE);
+        Toast.makeText(this, event.getMessage(), Toast.LENGTH_LONG).show();
+        setLoadingIndicator(false);
     }
 
     private boolean isConnectedToNetwork() {
