@@ -1,34 +1,15 @@
 package io.countryInfo.wiki.presentation;
 
-import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
-import android.support.annotation.NonNull;
+import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.ViewModel;
 
 import io.countryInfo.wiki.data.InfoDataRepository;
 import io.countryInfo.wiki.model.CountryInfo;
 
-public class CountryInfoViewModel extends AndroidViewModel {
+public class CountryInfoViewModel extends ViewModel {
 
-    private LiveData<CountryInfo> countryInfoLiveData;
-
-    public CountryInfoViewModel(@NonNull Application application) {
-        super(application);
-        InfoDataRepository infoDataRepository = InfoDataRepository.getInstance();
-        infoDataRepository.setApplication(application);
-        fetchCountryInfoFromCloud();
-        countryInfoLiveData = infoDataRepository.getCountryInfoFromDb();
-    }
-
-    public void fetchCountryInfoFromCloud() {
-        InfoDataRepository.getInstance().getCountryInfoFromCloud();
-    }
-
-    @NonNull
-    @Override
-    public <T extends Application> T getApplication() {
-        return super.getApplication();
-    }
+    private MutableLiveData<CountryInfo> countryInfoLiveData;
 
     @Override
     protected void onCleared() {
@@ -36,7 +17,16 @@ public class CountryInfoViewModel extends AndroidViewModel {
     }
 
     public LiveData<CountryInfo> getCountryInfoLiveData() {
+        if(countryInfoLiveData == null){
+            countryInfoLiveData = new MutableLiveData<>();
+            getCountryInfoFromCloud();
+            countryInfoLiveData = InfoDataRepository.getInstance().getCountryInfo();
+        }
         return countryInfoLiveData;
+    }
+
+    public void getCountryInfoFromCloud() {
+        InfoDataRepository.getInstance().getCountryInfoFromCloud();
     }
 
 }
