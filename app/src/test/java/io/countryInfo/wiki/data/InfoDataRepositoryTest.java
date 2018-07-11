@@ -60,7 +60,10 @@ public class InfoDataRepositoryTest {
         mockWebServer.enqueue(mockResponse);
         Response<CountryInfo> response = infoApi.getCountryInfo().execute();
         assertEquals(response.code(),200);
-
+        assert response.body() != null;
+        assertEquals(response.body() != null ? response.body().getTitle() : null,"About Canada");
+        assert response.body() != null;
+        assertEquals(response.body() != null ? response.body().getRows().get(0).getTitle() : null, "Beavers");
     }
 
 
