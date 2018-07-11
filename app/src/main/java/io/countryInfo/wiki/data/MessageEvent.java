@@ -1,7 +1,7 @@
 package io.countryInfo.wiki.data;
 
 public class MessageEvent {
-    public String mMessage;
+    private String mMessage;
 
     public MessageEvent(String message) {
         mMessage = message;
