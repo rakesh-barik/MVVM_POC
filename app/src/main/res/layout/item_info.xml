@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginStart="4dp"
+    android:layout_marginEnd="4dp"
+    android:layout_marginTop="4dp"
     >
 
     <TextView
@@ -17,7 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:paddingStart="2dp"
+        android:layout_marginStart="2dp"
         android:layout_marginEnd="8dp"
         android:text=">"
         android:textAlignment="center"
@@ -31,6 +34,7 @@
         android:layout_below="@id/text_title"
         android:layout_toStartOf="@id/caret"
         android:orientation="horizontal"
+        android:layout_marginBottom="4dp"
         android:weightSum="100">
 
         <TextView
@@ -38,16 +42,18 @@
             style="@style/DescriptionInfoStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="70" />
+            android:layout_weight="80" />
 
         <ImageView
             android:id="@+id/image_article"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top"
-            android:layout_marginBottom="4dp"
-            android:layout_weight="30"
+            android:layout_margin="4dp"
+            android:layout_weight="20"
             android:contentDescription="article image"
+            android:scaleType="fitXY"
+            android:adjustViewBounds="true"
             tools:background="@color/colorAccent" />
     </LinearLayout>
 
@@ -55,6 +61,7 @@
         android:id="@+id/separator"
         android:layout_width="match_parent"
         android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
         android:background="#D3D3D3" />
 
 </RelativeLayout>

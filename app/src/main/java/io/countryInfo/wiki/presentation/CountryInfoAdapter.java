@@ -37,15 +37,23 @@ public class CountryInfoAdapter extends RecyclerView.Adapter<CountryInfoAdapter.
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         final Row fact = rows.get(position);
-        if(fact.getTitle() == null && fact.getDescription() == null){
+        if (fact.getTitle() == null && fact.getDescription() == null) {
             holder.caretView.setVisibility(View.GONE);
             holder.titleTextView.setVisibility(View.GONE);
             holder.descTextView.setVisibility(View.GONE);
             holder.separatorView.setVisibility(View.GONE);
+        } else {
+            holder.caretView.setVisibility(View.VISIBLE);
+            holder.titleTextView.setVisibility(View.VISIBLE);
+            holder.descTextView.setVisibility(View.VISIBLE);
+            holder.separatorView.setVisibility(View.VISIBLE);
+
+            holder.titleTextView.setText(fact.getTitle());
+            holder.descTextView.setText(fact.getDescription());
+            Glide.with(holder.articleImageView.getContext())
+                    .load(fact.getImageHref())
+                    .into(holder.articleImageView);
         }
-        holder.titleTextView.setText(fact.getTitle());
-        holder.descTextView.setText(fact.getDescription());
-        Glide.with(holder.articleImageView.getContext()).load(fact.getImageHref()).into(holder.articleImageView);
     }
 
     @Override
@@ -58,13 +66,13 @@ public class CountryInfoAdapter extends RecyclerView.Adapter<CountryInfoAdapter.
         notifyDataSetChanged();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
         TextView titleTextView, descTextView;
         ImageView articleImageView;
         TextView caretView;
         View separatorView;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
             titleTextView = itemView.findViewById(R.id.text_title);
             descTextView = itemView.findViewById(R.id.text_desc);

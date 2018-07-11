@@ -16,13 +16,9 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
 import io.countryInfo.wiki.R;
-import io.countryInfo.wiki.data.MessageEvent;
-import io.countryInfo.wiki.model.CountryInfo;
+import io.countryInfo.wiki.model.Resource;
+import io.countryInfo.wiki.model.Status;
 
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
@@ -53,13 +49,15 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     private void loadCountryInfo() {
         viewModel = ViewModelProviders.of(this).get(CountryInfoViewModel.class);
-        viewModel.getCountryInfoLiveData().observe(this, new Observer<CountryInfo>() {
+        viewModel.getCountryInfoLiveData().observe(this, new Observer<Resource>() {
             @Override
-            public void onChanged(@Nullable CountryInfo countryInfo) {
-                if (countryInfo != null) {
-                    getSupportActionBar().setTitle(countryInfo.getTitle());
-                    countryInfoAdapter.setRows(countryInfo.getRows());
+            public void onChanged(@Nullable Resource resource) {
+                if (resource != null && resource.getStatus() == Status.SUCCESS) {
+                    getSupportActionBar().setTitle(resource.getCountryInfo().getTitle());
+                    countryInfoAdapter.setRows(resource.getCountryInfo().getRows());
                     setLoadingIndicator(false);
+                } else {
+                    showError();
                 }
             }
         });
@@ -68,14 +66,19 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     public void onRefresh() {
         if (!isConnectedToNetwork()) {
-            setLoadingIndicator(false);
-            Toast.makeText(this, R.string.network_error, Toast.LENGTH_SHORT).show();
-        }
-        if (viewModel != null) {
-            viewModel.onCleared();
-            viewModel.getCountryInfoFromCloud();
+            showError();
+        } else {
+            if (viewModel != null) {
+                viewModel.onCleared();
+                viewModel.getCountryInfoFromCloud();
+            }
         }
 
+    }
+
+    private void showError() {
+        setLoadingIndicator(false);
+        Toast.makeText(this, R.string.network_error, Toast.LENGTH_SHORT).show();
     }
 
     private void setLoadingIndicator(boolean active) {
@@ -86,23 +89,16 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     public void onStart() {
         super.onStart();
-        EventBus.getDefault().register(this);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        EventBus.getDefault().unregister(this);
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(MessageEvent event) {
-        Toast.makeText(this, event.getMessage(), Toast.LENGTH_LONG).show();
-        setLoadingIndicator(false);
     }
 
     private boolean isConnectedToNetwork() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        assert connectivityManager != null;
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnected();
     }
