@@ -1,9 +1,5 @@
 package io.countryInfo.wiki.data;
 
-import android.arch.lifecycle.MutableLiveData;
-
-import org.greenrobot.eventbus.EventBus;
-
 import io.countryInfo.wiki.data.remote.InfoApi;
 import io.countryInfo.wiki.data.remote.InfoApiClient;
 import io.countryInfo.wiki.model.CountryInfo;
@@ -15,11 +11,8 @@ import retrofit2.Retrofit;
 public class InfoDataRepository {
     private static InfoDataRepository instance = null;
     private InfoApi infoApi;
-    private MutableLiveData<CountryInfo> infoLiveData;
-
 
     private InfoDataRepository() {
-        infoLiveData = new MutableLiveData<>();
         initAPI();
     }
 
@@ -34,32 +27,26 @@ public class InfoDataRepository {
         return instance;
     }
 
-
-
     private void initAPI() {
         Retrofit retrofit = InfoApiClient.getRetrofitClient();
         infoApi = retrofit.create(InfoApi.class);
     }
 
-    public MutableLiveData<CountryInfo> getCountryInfo() {
-        return infoLiveData;
-    }
 
-    public void getCountryInfoFromCloud() {
+    public void getCountryInfoFromCloud(final GetCountryInfoCallback callback) {
         Call<CountryInfo> call = infoApi.getCountryInfo();
         call.enqueue(new Callback<CountryInfo>() {
             @Override
             public void onResponse(Call<CountryInfo> call, Response<CountryInfo> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    CountryInfo countryInfo = response.body();
-                    infoLiveData.setValue(countryInfo);
+                    callback.onCountryInfoFetchSuccess(response.body());
                 }
             }
 
             @Override
             public void onFailure(Call<CountryInfo> call, Throwable t) {
                 //We can still granularize this error messages.
-                EventBus.getDefault().post(new MessageEvent("NETWORK ERROR"));
+                callback.onCountryInfoFetchFailure(new MessageEvent("NETWORK ERROR"));
             }
         });
     }
