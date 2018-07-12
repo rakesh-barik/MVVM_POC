@@ -33,6 +33,9 @@ ext {
     roomVersion = '1.1.1'
     archLifecycleVersion = '1.1.1'
     mockitoVersion = '2.10.0'
+    rxJavaVersion = '2.0.1'
+    rxAndroidVersion = '2.0.2'
+    rxRetrofitAdapter = '1.0.0'
 }
 
 task clean(type: Delete) {

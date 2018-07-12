@@ -3,28 +3,19 @@ package io.countryInfo.wiki.data;
 import io.countryInfo.wiki.data.remote.InfoApi;
 import io.countryInfo.wiki.data.remote.InfoApiClient;
 import io.countryInfo.wiki.model.CountryInfo;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import io.countryInfo.wiki.model.Resource;
+import io.countryInfo.wiki.model.Status;
+import io.reactivex.Single;
+import io.reactivex.SingleSource;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Retrofit;
 
 public class InfoDataRepository {
-    private static InfoDataRepository instance = null;
     private InfoApi infoApi;
 
-    private InfoDataRepository() {
+    public InfoDataRepository() {
         initAPI();
-    }
-
-    public static InfoDataRepository getInstance() {
-        if (instance == null) {
-            synchronized (InfoDataRepository.class) {
-                if (instance == null) {
-                    instance = new InfoDataRepository();
-                }
-            }
-        }
-        return instance;
     }
 
     private void initAPI() {
@@ -32,22 +23,20 @@ public class InfoDataRepository {
         infoApi = retrofit.create(InfoApi.class);
     }
 
-
-    public void getCountryInfoFromCloud(final GetCountryInfoCallback callback) {
-        Call<CountryInfo> call = infoApi.getCountryInfo();
-        call.enqueue(new Callback<CountryInfo>() {
-            @Override
-            public void onResponse(Call<CountryInfo> call, Response<CountryInfo> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    callback.onCountryInfoFetchSuccess(response.body());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<CountryInfo> call, Throwable t) {
-                //We can still granularize this error messages.
-                callback.onCountryInfoFetchFailure(new MessageEvent("NETWORK ERROR"));
-            }
-        });
+    public Single<Resource> getCountryInfoFromCloud(){
+        return infoApi.getCountryInfo()
+                .subscribeOn(Schedulers.io())
+                .map(new Function<CountryInfo, Resource>() {
+                    @Override
+                    public Resource apply(CountryInfo countryInfo) throws Exception {
+                        return new Resource(countryInfo, Status.SUCCESS,null);
+                    }
+                }).onErrorResumeNext(new Function<Throwable, SingleSource<? extends Resource>>() {
+                    @Override
+                    public SingleSource<? extends Resource> apply(Throwable throwable) throws Exception {
+                        return Single.just(new Resource(null,Status.FAILURE,"NETWORK FAILURE"));
+                    }
+                });
     }
+
 }

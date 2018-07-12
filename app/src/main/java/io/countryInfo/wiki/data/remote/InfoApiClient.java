@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.test.espresso.IdlingRegistry;
 
 import com.jakewharton.espresso.OkHttp3IdlingResource;
+import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
 import io.countryInfo.wiki.BuildConfig;
 import okhttp3.OkHttpClient;
@@ -27,6 +28,7 @@ public final class InfoApiClient {
             retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
                     .addConverterFactory(GsonConverterFactory.create())
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .client(getOkHttpClient())
                     .build();
 
