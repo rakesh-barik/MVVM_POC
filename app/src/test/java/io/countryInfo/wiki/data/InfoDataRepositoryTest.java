@@ -1,29 +1,30 @@
 package io.countryInfo.wiki.data;
 
+import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
 import java.io.IOException;
 
 import io.countryInfo.wiki.data.remote.InfoApi;
 import io.countryInfo.wiki.model.CountryInfo;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.subscribers.TestSubscriber;
 import okhttp3.OkHttpClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static org.junit.Assert.assertEquals;
+import static junit.framework.Assert.assertEquals;
 
-@RunWith(JUnit4.class)
 public class InfoDataRepositoryTest {
 
     private MockWebServer mockWebServer;
     private InfoApi infoApi;
+    TestSubscriber<CountryInfo> mSubscriber;
 
     private String sampleJson = "{\n" +
             "\"title\":\"About Canada\",\n" +
@@ -38,19 +39,16 @@ public class InfoDataRepositoryTest {
     public void setup() throws IOException {
         mockWebServer = new MockWebServer();
         mockWebServer.start();
-
         OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
 
         Retrofit retrofit =  new Retrofit.Builder()
                 .baseUrl("https://dl.dropboxusercontent.com/s/2iodh4vg0eortkl/")
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(okHttpClient)
                 .build();
 
         infoApi = retrofit.create(InfoApi.class);
-
-        InfoDataRepository.getInstance();
-
     }
 
     @Test
@@ -58,12 +56,13 @@ public class InfoDataRepositoryTest {
         MockResponse mockResponse = new MockResponse().setResponseCode(200)
                 .setBody(sampleJson);
         mockWebServer.enqueue(mockResponse);
-        Response<CountryInfo> response = infoApi.getCountryInfo().execute();
-        assertEquals(response.code(),200);
-        assert response.body() != null;
-        assertEquals(response.body() != null ? response.body().getTitle() : null,"About Canada");
-        assert response.body() != null;
-        assertEquals(response.body() != null ? response.body().getRows().get(0).getTitle() : null, "Beavers");
+        TestObserver observer = new TestObserver();
+        infoApi.getCountryInfo().subscribe(observer);
+        observer.assertNoErrors();
+        observer.awaitTerminalEvent();
+        observer.assertComplete();
+        CountryInfo  countryInfo = (CountryInfo) observer.values().get(0);
+        assertEquals("About Canada", countryInfo.getTitle());
     }
 
 
