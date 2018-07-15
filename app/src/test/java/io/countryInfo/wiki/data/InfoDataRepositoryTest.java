@@ -11,7 +11,6 @@ import java.io.IOException;
 import io.countryInfo.wiki.data.remote.InfoApi;
 import io.countryInfo.wiki.model.CountryInfo;
 import io.reactivex.observers.TestObserver;
-import io.reactivex.subscribers.TestSubscriber;
 import okhttp3.OkHttpClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -24,7 +23,6 @@ public class InfoDataRepositoryTest {
 
     private MockWebServer mockWebServer;
     private InfoApi infoApi;
-    TestSubscriber<CountryInfo> mSubscriber;
 
     private String sampleJson = "{\n" +
             "\"title\":\"About Canada\",\n" +
@@ -35,10 +33,22 @@ public class InfoDataRepositoryTest {
             "\t\"imageHref\":\"http://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/American_Beaver.jpg/220px-American_Beaver.jpg\"\n" +
             "\t}";
 
+
+    private String sampleErrorJson = "{\n" +
+            "  \"error\": {\n" +
+            "    \"code\": 404,\n" +
+            "    \"message\": \"Not Found\"\n" +
+            "  }\n" +
+            "}";
+
     @Before
     public void setup() throws IOException {
         mockWebServer = new MockWebServer();
         mockWebServer.start();
+    }
+
+    @Test
+    public void testGetCountryInfoFromCloud() throws IOException {
         OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
 
         Retrofit retrofit =  new Retrofit.Builder()
@@ -49,10 +59,6 @@ public class InfoDataRepositoryTest {
                 .build();
 
         infoApi = retrofit.create(InfoApi.class);
-    }
-
-    @Test
-    public void testGetCountryInfoFromCloud() throws IOException {
         MockResponse mockResponse = new MockResponse().setResponseCode(200)
                 .setBody(sampleJson);
         mockWebServer.enqueue(mockResponse);
@@ -65,6 +71,29 @@ public class InfoDataRepositoryTest {
         assertEquals("About Canada", countryInfo.getTitle());
     }
 
+    @Test(expected = Exception.class)
+    public void testGetCountryInfoFromCloudFailure(){
+        OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
+
+        Retrofit retrofit =  new Retrofit.Builder()
+                //wrong url
+                .baseUrl("https://dl.dropboxusercontent.com/s/")
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(okHttpClient)
+                .build();
+
+        infoApi = retrofit.create(InfoApi.class);
+        MockResponse mockResponse = new MockResponse().setResponseCode(404).setBody(sampleErrorJson);
+        mockWebServer.enqueue(mockResponse);
+        TestObserver observer = new TestObserver();
+        infoApi.getCountryInfo().subscribe(observer);
+        observer.assertErrorMessage("HTTP 404 Not Found");
+        observer.awaitTerminalEvent();
+        observer.assertNotComplete();
+        CountryInfo  countryInfo = (CountryInfo) observer.values().get(0);
+        assertEquals(null, countryInfo);
+    }
 
 
     @After
