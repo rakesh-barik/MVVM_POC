@@ -3,6 +3,7 @@ package io.countryInfo.wiki.presentation;
 import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.support.test.espresso.contrib.RecyclerViewActions;
+import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 
@@ -17,12 +18,10 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.swipeDown;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 
 @RunWith(JUnit4.class)
 @LargeTest
@@ -47,14 +46,12 @@ public class MainActivityInstrumentationTest {
     }
 
     @Test
-    public void checkNetworkErrorToast() {
+    public void checkNetworkErrorMessage() {
         WifiManager wifi = (WifiManager) mActivityRule.getActivity().getSystemService(Context.WIFI_SERVICE);
         if(wifi != null) wifi.setWifiEnabled(false);
         onView(withId(R.id.pull_to_refresh)).perform(swipeDown());
-        onView(withText(R.string.network_error))
-                .inRoot(withDecorView(not(is(mActivityRule.
-                        getActivity().getWindow().getDecorView()))))
-                .check(matches(isDisplayed()));
+        onView(withText(R.string.check_network_connection))
+                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
         if(wifi != null) wifi.setWifiEnabled(true);
     }
 
