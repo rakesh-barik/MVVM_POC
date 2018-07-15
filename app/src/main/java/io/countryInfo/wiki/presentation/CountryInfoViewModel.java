@@ -23,7 +23,6 @@ public class CountryInfoViewModel extends ViewModel{
     public LiveData<Resource> getCountryInfoLiveData() {
         if(countryInfoLiveData == null){
             countryInfoLiveData = new MutableLiveData<>();
-            getCountryInfoFromCloud();
         }
         return countryInfoLiveData;
     }
