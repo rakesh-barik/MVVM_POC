@@ -29,12 +29,12 @@ public class InfoDataRepository {
                 .map(new Function<CountryInfo, Resource>() {
                     @Override
                     public Resource apply(CountryInfo countryInfo) throws Exception {
-                        return new Resource(countryInfo, Status.SUCCESS,null);
+                        return new Resource(countryInfo, Status.SUCCESS);
                     }
                 }).onErrorResumeNext(new Function<Throwable, SingleSource<? extends Resource>>() {
                     @Override
                     public SingleSource<? extends Resource> apply(Throwable throwable) throws Exception {
-                        return Single.just(new Resource(null,Status.FAILURE,"NETWORK FAILURE"));
+                        return Single.just(new Resource(null,Status.FAILURE));
                     }
                 });
     }
