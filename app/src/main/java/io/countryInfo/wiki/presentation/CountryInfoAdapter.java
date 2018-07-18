@@ -1,6 +1,7 @@
 package io.countryInfo.wiki.presentation;
 
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,7 +21,7 @@ public class CountryInfoAdapter extends RecyclerView.Adapter<CountryInfoAdapter.
 
     private List<Row> rows = new ArrayList<>();
 
-    public CountryInfoAdapter() {
+    CountryInfoAdapter() {
 
     }
 
@@ -38,21 +39,18 @@ public class CountryInfoAdapter extends RecyclerView.Adapter<CountryInfoAdapter.
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         final Row fact = rows.get(position);
         if (fact.getTitle() == null && fact.getDescription() == null) {
-            holder.caretView.setVisibility(View.GONE);
-            holder.titleTextView.setVisibility(View.GONE);
-            holder.descTextView.setVisibility(View.GONE);
-            holder.separatorView.setVisibility(View.GONE);
+            CardView.LayoutParams params = new CardView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            params.height = 0;
+            holder.cardView.setLayoutParams(params);
         } else {
-            holder.caretView.setVisibility(View.VISIBLE);
             holder.titleTextView.setVisibility(View.VISIBLE);
             holder.descTextView.setVisibility(View.VISIBLE);
-            holder.separatorView.setVisibility(View.VISIBLE);
-
             holder.titleTextView.setText(fact.getTitle());
             holder.descTextView.setText(fact.getDescription());
-            Glide.with(holder.articleImageView.getContext())
-                    .load(fact.getImageHref())
-                    .into(holder.articleImageView);
+                Glide.with(holder.articleImageView.getContext())
+                        .load(fact.getImageHref())
+                        .into(holder.articleImageView);
         }
     }
 
@@ -69,19 +67,14 @@ public class CountryInfoAdapter extends RecyclerView.Adapter<CountryInfoAdapter.
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView titleTextView, descTextView;
         ImageView articleImageView;
-        TextView caretView;
-        View separatorView;
+        CardView cardView;
 
         ViewHolder(View itemView) {
             super(itemView);
+            cardView = itemView.findViewById(R.id.item_card);
             titleTextView = itemView.findViewById(R.id.text_title);
             descTextView = itemView.findViewById(R.id.text_desc);
-            caretView = itemView.findViewById(R.id.caret);
             articleImageView = itemView.findViewById(R.id.image_article);
-            separatorView = itemView.findViewById(R.id.separator);
         }
-
-
     }
-
 }

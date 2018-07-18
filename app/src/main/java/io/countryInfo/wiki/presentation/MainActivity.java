@@ -19,6 +19,7 @@ import io.countryInfo.wiki.R;
 import io.countryInfo.wiki.model.Resource;
 import io.countryInfo.wiki.model.Status;
 import io.countryInfo.wiki.utils.ConnectivityChangeReceiver;
+import io.countryInfo.wiki.utils.ListSpacingDecoration;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -38,8 +39,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        registerNetworkChangeReceiver();
-
         initRefreshLayout();
 
         initRecyclerView();
@@ -47,6 +46,12 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         initSnackBar();
 
         loadCountryInfo();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        registerNetworkChangeReceiver();
     }
 
     private void initRefreshLayout() {
@@ -64,6 +69,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         infoRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         countryInfoAdapter = new CountryInfoAdapter();
         infoRecyclerView.setAdapter(countryInfoAdapter);
+        RecyclerView.ItemDecoration listSpacing = new ListSpacingDecoration(this,R.dimen.card_margin);
+        infoRecyclerView.addItemDecoration(listSpacing);
     }
 
     private void initSnackBar() {
@@ -157,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     public void onStop() {
         super.onStop();
-        unregisterReceiver(changeReceiver);
+            unregisterReceiver(changeReceiver);
     }
 
 
