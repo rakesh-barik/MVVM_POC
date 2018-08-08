@@ -48,9 +48,9 @@ public class CountryInfoAdapter extends RecyclerView.Adapter<CountryInfoAdapter.
             holder.descTextView.setVisibility(View.VISIBLE);
             holder.titleTextView.setText(fact.getTitle());
             holder.descTextView.setText(fact.getDescription());
-                Glide.with(holder.articleImageView.getContext())
-                        .load(fact.getImageHref())
-                        .into(holder.articleImageView);
+            Glide.with(holder.articleImageView.getContext())
+                    .load(fact.getImageHref())
+                    .into(holder.articleImageView);
         }
     }
 
