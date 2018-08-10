@@ -57,7 +57,7 @@ public class ListSpacingDecoration extends RecyclerView.ItemDecoration {
         setSpacings(outRect, parent, childCount, childIndex, itemSpanSize, spanIndex);
     }
 
-    protected void setSpacings(Rect outRect, RecyclerView parent, int childCount, int childIndex, int itemSpanSize, int spanIndex) {
+    private void setSpacings(Rect outRect, RecyclerView parent, int childCount, int childIndex, int itemSpanSize, int spanIndex) {
 
         if(isTopEdge(parent,childCount, childIndex, itemSpanSize, spanIndex)){
             outRect.top = spacing;
@@ -132,7 +132,7 @@ public class ListSpacingDecoration extends RecyclerView.ItemDecoration {
         return VERTICAL;
     }
 
-    protected boolean isBottomEdge(RecyclerView parent, int childCount, int childIndex, int itemSpanSize, int spanIndex) {
+    private boolean isBottomEdge(RecyclerView parent, int childCount, int childIndex, int itemSpanSize, int spanIndex) {
 
         if (orientation == VERTICAL) {
 
@@ -149,7 +149,7 @@ public class ListSpacingDecoration extends RecyclerView.ItemDecoration {
         return (orientation == VERTICAL && childIndex == 0);
     }
 
-    protected boolean isLastItemEdgeValid(boolean isOneOfLastItems, RecyclerView parent, int childCount, int childIndex, int spanIndex) {
+    private boolean isLastItemEdgeValid(boolean isOneOfLastItems, RecyclerView parent, int childCount, int childIndex, int spanIndex) {
 
         int totalSpanRemaining = 0;
         if (isOneOfLastItems) {

@@ -22,11 +22,7 @@ public class ConnectivityChangeReceiver extends BroadcastReceiver{
         assert connectivityManager != null;
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         Boolean isActive;
-        if(networkInfo != null) {
-            isActive = networkInfo.isConnected();
-        }else {
-            isActive = false;
-        }
+        isActive = networkInfo != null && networkInfo.isConnected();
         booleanSubject.onNext(isActive);
         Log.d("OnReceive->", isActive.toString());
     }
